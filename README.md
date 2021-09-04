@@ -5,6 +5,8 @@ Based on PyTorch's [ tutorial ]( https://pytorch.org/tutorials/beginner/transfor
 
 - [ ] Write everything from the tutorial
 - [ ] Modularize
+- [ ] Refactor
+- [ ] Proper Types
 - [ ] Train 
 - [ ] Evaluate 
 - [ ] Predict
