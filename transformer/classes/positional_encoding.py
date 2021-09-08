@@ -25,15 +25,14 @@ class PositionalEncoding(nn.Module):
 
     position = torch.arange(max_len).unsqueeze(1)  # shape: [max_len, 1]
     div_term = torch.exp(  # shape: [d_model // 2]
-        torch.arange(0, d_model, 2) * # shape: [d_model // 2]
-        (-math.log(10000.0) / d_model) 
-    ) 
-    pe = torch.zeros(max_len, 1, d_model) # shape: [max_len, 1, d_model]
-    pe[:, 0, 0::2] = torch.sin(position * div_term) 
+        torch.arange(0, d_model, 2) *  # shape: [d_model // 2]
+        (-math.log(10000.0) / d_model)
+    )
+    pe = torch.zeros(max_len, 1, d_model)  # shape: [max_len, 1, d_model]
+    pe[:, 0, 0::2] = torch.sin(position * div_term)
     pe[:, 0, 1::2] = torch.cos(position * div_term)
 
     self.register_buffer("pe", pe)  # type: Tensor
-
 
   def forward(self, x: Tensor) -> Tensor:
     """Given a tensor with the shape of [seq_len, batch_size, embedding_dim],
@@ -49,3 +48,6 @@ class PositionalEncoding(nn.Module):
     x = x + self.pe[:x.size(0)]
 
     return self.dropout(x)
+
+
+PositionalEncoding(64)

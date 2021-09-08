@@ -1,25 +1,37 @@
-from functions import evaluate
-from dataset import vocab, device, bptt, device, train_data, val_data, test_data
-from modules import TransformerModel
-from functions import train
-
 import time
 import math
 import copy
 
+from torchtext.datasets import WikiText2
 import torch.nn as nn
 import torch
 
-ntokens = len(vocab)  # Size of vocab
-emsize = 200  # Embedding dimension
-d_hid = 200  # Dimension of hidden feedforward network in nn.TransformerEncoder
-nlayers = 2  # Number of nn.TransformerEncoderLayer in nn.TransformerEncoder
-nhead = 2  # Number of heads in nn.MultiHeadAttention
-dropout = 0.2  # Dropout probability
-lr = 0.5  # Learning rate
+from functions import evaluate, train
+from dataset import get_vocab, get_processed_data, get_tokenizer
+from classes.transformer_model import TransformerModel
 
-model = TransformerModel(ntokens, emsize, nhead, d_hid,
-                         nlayers, dropout).to(device)
+tokenizer = get_tokenizer("basic_english")
+vocab = get_vocab(WikiText2(split="train"), tokenizer)
+device = torch.device("cpu")
+
+ntokens = len(vocab)
+lr = 0.5
+epoch = 3
+bptt = 2
+batch_size = 10
+device = torch.device("cpu")
+train_data, val_data, test_data = get_processed_data(
+    WikiText2(), batch_size, device, vocab, tokenizer)
+
+model = TransformerModel(
+    ntoken=ntokens,  # Size of vocab
+    d_model=200,  # Embedding dimension
+    d_hid=200,  # Dimension of hidden feedforward network in nn.TransformerEncoder
+    nhead=2,  # Number of heads in nn.MultiHeadAttention
+    nlayers=2,  # Number of nn.TransformerEncoderLayer in nn.TransformerEncoder
+    dropout=0.2,  # Dropout probability
+)
+
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=lr)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1, gamma=0.95)
@@ -33,7 +45,7 @@ print("Training")
 for epoch in range(1, epoch + 1):
   epoch_start_time = time.time()
   train(model, criterion, optimizer, scheduler,
-        epoch, lr, bptt, device, train_data, ntokens)
+        device, train_data, epoch, lr, bptt,  ntokens)
   val_loss = evaluate(model, criterion, val_data, bptt, device, ntokens)
   val_ppl = math.exp(val_loss)
   elapsed = time.time() - epoch_start_time

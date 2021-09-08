@@ -1,3 +1,4 @@
+from numpy import datetime_as_string
 import torch
 
 from torchtext.datasets import WikiText2
@@ -39,9 +40,13 @@ def process_data(raw_text_iter: Iterable, vocab, tokenizer) -> Tensor:
       Tensor: Flat tensor representing whole dataset
   """
   raw_text_iter = list(raw_text_iter)
-  data = [  # shape:
-      torch.tensor(vocab(tokenizer(item)), dtype=torch.long)
-      for item in raw_text_iter
+  # data = [  # shape:
+  #     torch.tensor(vocab(tokenizer(item)), dtype=torch.long)
+  #     for item in raw_text_iter
+  # ]
+  data = [
+    torch.tensor(range(len(tokenizer(item))), dtype=torch.long)
+    for item in raw_text_iter
   ]
 
   return torch.cat(tuple(filter(lambda t: t.numel() > 0, data)))
@@ -96,8 +101,8 @@ def get_data_pair(source: Tensor, i: int, bptt: int) -> Tuple[Tensor, Tensor]:
   """
   Args:
     source: Tensor, shape [full_seq_len, batch_size]
-    i: int
-    bptt: int
+    i: int: Position
+    bptt: int: Subbatch per batch
 
   Returns:
     tuple (data, target), where data has shape [seq_len, batch_size] and target

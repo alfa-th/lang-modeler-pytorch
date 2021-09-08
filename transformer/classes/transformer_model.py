@@ -1,5 +1,6 @@
 import math
 
+import torch
 from torch import nn, Tensor
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
 
